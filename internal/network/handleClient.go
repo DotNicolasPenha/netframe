@@ -35,7 +35,7 @@ func (s *Server) handleClientConn(clientConn net.Conn) {
 
 		request := protocol.NewRequest(client, packet)
 
-		err = s.Dispatcher.Dispatch(request)
+		err = s.dispatcher.Dispatch(request)
 		if err != nil {
 			logger.LogError(err)
 			return

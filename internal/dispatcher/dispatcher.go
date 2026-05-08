@@ -1,6 +1,7 @@
 package dispatcher
 
 import (
+	"com.dv.mp/internal/dispatcher/handlers"
 	"com.dv.mp/internal/protocol"
 )
 
@@ -11,9 +12,11 @@ type Dispatcher struct {
 }
 
 func NewDispatcher() *Dispatcher {
-	return &Dispatcher{
+	d := Dispatcher{
 		handlers: make(map[byte]HandlerFunc),
 	}
+	d.Register(protocol.PING, handlers.HandlePing)
+	return &d
 }
 
 func (d *Dispatcher) Register(
@@ -26,7 +29,7 @@ func (d *Dispatcher) Register(
 func (d *Dispatcher) Dispatch(r *protocol.Request) error {
 	handler, ok := d.handlers[r.Packet.Header.Opcode]
 	if !ok {
-		return d.handlers[protocol.UNKNOWN](r)
+		return handlers.HandleUnknown(r)
 	}
 	return handler(r)
 }

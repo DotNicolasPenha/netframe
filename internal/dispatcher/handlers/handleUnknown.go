@@ -6,7 +6,7 @@ import (
 	"com.dv.mp/internal/protocol"
 )
 
-func HandleUnknown(r protocol.Request) error {
+func HandleUnknown(r *protocol.Request) error {
 	return r.Client.Send(
 		protocol.UNKNOWN,
 		[]byte(fmt.Sprintf(
