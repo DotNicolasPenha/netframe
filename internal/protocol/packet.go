@@ -8,16 +8,14 @@ type Packet struct {
 	Payload []byte
 }
 
-func BuildEncPacket(opcode byte, payload []byte) (*[]byte, error) {
-	packet := Packet{
+func NewPacket(opcode byte, payload []byte) *Packet {
+	return &Packet{
 		Header: Header{
 			Opcode: opcode,
 		},
 		Payload: payload,
 	}
-	packetInBytes, err := Encode(&packet)
-	if err != nil {
-		return nil, err
-	}
-	return &packetInBytes, nil
+}
+func BuildPacket(packet *Packet) ([]byte, error) {
+	return Encode(packet)
 }
