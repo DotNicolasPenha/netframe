@@ -27,7 +27,7 @@ func Encode(p *Packet) ([]byte, error) {
 	err = binary.Write(
 		buf,
 		binary.BigEndian,
-		uint32(p.Header.Length),
+		uint32(len(p.Payload)),
 	)
 	if err != nil {
 		return nil, err
@@ -43,20 +43,20 @@ func Encode(p *Packet) ([]byte, error) {
 func Decode(r io.Reader) (*Packet, error) {
 	var h Header
 
-	hbuf := make([]byte, headerSize)
-	_, err := io.ReadFull(r, hbuf)
+	headerbuf := make([]byte, headerSize)
+	_, err := io.ReadFull(r, headerbuf)
 	if err != nil {
 		return nil, err
 	}
 
-	h.Opcode = hbuf[0]
-	h.Length = binary.BigEndian.Uint32(hbuf[1:headerSize])
+	h.Opcode = headerbuf[0]
+	payloadLength := binary.BigEndian.Uint32(headerbuf[1:headerSize])
 
-	if h.Length > payloadMaxLength {
+	if payloadLength > payloadMaxLength {
 		return nil, ErrPayloadExceedsMaximumAllowedSize
 	}
 
-	payloadBuffer := make([]byte, h.Length)
+	payloadBuffer := make([]byte, payloadLength)
 	_, err = io.ReadFull(r, payloadBuffer)
 	if err != nil {
 		return nil, err
