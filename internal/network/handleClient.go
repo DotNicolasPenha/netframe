@@ -14,7 +14,12 @@ func (s *Server) handleClientConn(clientConn net.Conn) {
 	defer clientConn.Close()
 
 	addr := clientConn.RemoteAddr().String()
-	defer logger.LogInfo(fmt.Sprintf("Client %s disconnected", addr))
+	start := time.Now()
+
+	defer func() {
+		timeStamp := time.Since(start)
+		logger.LogInfo(fmt.Sprintf("Client %s disconnected in [%d]", addr, timeStamp))
+	}()
 	logger.LogInfo(fmt.Sprintf("Client %s connected", addr))
 
 	client := protocol.NewClient(clientConn)
@@ -29,10 +34,14 @@ func (s *Server) handleClientConn(clientConn net.Conn) {
 		if err != nil {
 			if err != io.EOF {
 				logger.LogError(err)
-				return
 			}
+			return
 		}
 
+		if s.Cfg.DebugMode {
+			logger.LogDebug(fmt.Sprintf(
+				"FROM CLIENT %s: PACKET [OPCODE: %d][PAYLOAD: '%s']", addr, packet.Header.Opcode, packet.Payload))
+		}
 		request := protocol.NewRequest(client, packet)
 
 		err = s.dispatcher.Dispatch(request)

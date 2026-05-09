@@ -15,6 +15,11 @@ func (s *Server) Run() error {
 
 	logger.LogInfo("Server TCP is running")
 
+	if s.Cfg.DebugMode {
+		logger.LogInfo("Debug mode is ON")
+
+	}
+
 	for {
 		clientConn, err := ln.Accept()
 		if err != nil {
